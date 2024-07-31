@@ -67,7 +67,7 @@ class _TileGridState extends State<TileGrid> {
                       '${index + 1}',
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
-                        fontSize: 25,
+                        fontSize: 20,
                       ),
                     ),
                     SizedBox(height: 4),
@@ -75,7 +75,7 @@ class _TileGridState extends State<TileGrid> {
                       chapterInfo,
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
-                        fontSize: 15,
+                        fontSize: 12,
                       ),
                       textAlign: TextAlign.center,
                       overflow: TextOverflow.ellipsis,
