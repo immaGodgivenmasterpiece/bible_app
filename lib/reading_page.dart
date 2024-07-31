@@ -1,4 +1,3 @@
-// lib/reading_page.dart 수정 부분
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'reading_state.dart';
@@ -11,24 +10,30 @@ class ReadingPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final readingState = Provider.of<ReadingState>(context);
     final isRead = readingState.readStatus[tileId] ?? false;
+    final content = readingState.readings[tileId] ?? '내용을 불러올 수 없습니다.';
+
     return Scaffold(
-      appBar: AppBar(title: Text('교독문 $tileId')),
+      appBar: AppBar(title: Text('교독문 ${int.parse(tileId.split('_')[1])}')),
       body: Column(
         children: [
           Expanded(
-            child: Center(
-              child: Text('여기에 교독문 내용을 표시합니다.'),
+            child: SingleChildScrollView(
+              padding: EdgeInsets.all(16),
+              child: Text(
+                content,
+                style: TextStyle(fontSize: 18),
+              ),
             ),
           ),
-          if (isRead) // 읽은 타일에 "읽음 취소" 버튼을 표시
+          if (isRead)
             ElevatedButton(
               onPressed: () {
-                readingState.markAsUnread(tileId); // 읽음 상태를 취소하는 함수 호출
+                readingState.markAsUnread(tileId);
                 Navigator.pop(context);
               },
               child: Text('읽음 취소'),
             ),
-          if (!isRead) // 읽지 않은 타일에는 "읽음 표시" 버튼을 계속 표시
+          if (!isRead)
             ElevatedButton(
               onPressed: () {
                 readingState.markAsRead(tileId);
@@ -36,7 +41,7 @@ class ReadingPage extends StatelessWidget {
               },
               child: Text('읽음 표시'),
             ),
-          SizedBox(height: 8), // 버튼 사이의 공간 추가
+          SizedBox(height: 8),
         ],
       ),
     );
