@@ -16,59 +16,77 @@ class _TileGridState extends State<TileGrid> {
     final readingState = Provider.of<ReadingState>(context);
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text('교독문'),
-        actions: [
-          ElevatedButton(
-            onPressed: () {
-              _jumpToNextUnread(readingState);
-            },
-            child: Text('오늘의 교독문'),
-            style: ElevatedButton.styleFrom(
-              foregroundColor: Colors.white,
-              backgroundColor: Colors.blue,
-            ),
-          ),
-          SizedBox(width: 10),
-        ],
-      ),
-      body: GridView.builder(
-        controller: _scrollController,
-        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 5,
-          childAspectRatio: 1.0,
-        ),
-        itemCount: 137,
-        itemBuilder: (context, index) {
-          final tileId = 'tile_${index + 1}';
-          final isRead = readingState.readStatus[tileId] ?? false;
-          final content = readingState.readings[tileId] ?? '';
-          return GestureDetector(
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => ReadingPage(tileId: tileId),
-                ),
-              );
-            },
-            child: Container(
-              margin: EdgeInsets.all(4),
-              color: isRead ? Colors.green : Color.fromARGB(255, 219, 130, 14),
-              child: Center(
-                child: Text(
-                  '${content.split('\n').first}',
-                  style: TextStyle(fontWeight: FontWeight.bold),
-                  textAlign: TextAlign.center,
-                  overflow: TextOverflow.ellipsis,
-                  maxLines: 2,
-                ),
+        appBar: AppBar(
+          title: Text('교독문'),
+          actions: [
+            ElevatedButton(
+              onPressed: () {
+                _jumpToNextUnread(readingState);
+              },
+              child: Text('오늘의 교독문'),
+              style: ElevatedButton.styleFrom(
+                foregroundColor: Colors.white,
+                backgroundColor: Colors.blue,
               ),
             ),
-          );
-        },
-      ),
-    );
+            SizedBox(width: 10),
+          ],
+        ),
+        body: GridView.builder(
+          controller: _scrollController,
+          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 5,
+            childAspectRatio: 1.0,
+          ),
+          itemCount: 137,
+          itemBuilder: (context, index) {
+            final tileId = 'tile_${index + 1}';
+            final isRead = readingState.readStatus[tileId] ?? false;
+            final content = readingState.readings[tileId] ?? '';
+            final chapterInfo = content.split('.').length > 1
+                ? content.split('.')[1].split('\n')[0].trim()
+                : '';
+
+            return GestureDetector(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => ReadingPage(tileId: tileId),
+                  ),
+                );
+              },
+              child: Container(
+                margin: EdgeInsets.all(4),
+                color:
+                    isRead ? Colors.green : Color.fromARGB(255, 219, 130, 14),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      '${index + 1}',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 25,
+                      ),
+                    ),
+                    SizedBox(height: 4),
+                    Text(
+                      chapterInfo,
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 15,
+                      ),
+                      textAlign: TextAlign.center,
+                      overflow: TextOverflow.ellipsis,
+                      maxLines: 1,
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
+        ));
   }
 
   void _jumpToNextUnread(ReadingState readingState) {
