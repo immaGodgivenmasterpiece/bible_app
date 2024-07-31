@@ -1,8 +1,6 @@
 import 'dart:convert';
-
 import 'package:flutter/foundation.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/services.dart';
 
 class ReadingState extends ChangeNotifier {
   Map<String, String> _readings = {};
@@ -25,15 +23,9 @@ class ReadingState extends ChangeNotifier {
       _readings = Map<String, String>.from(readingsDoc.data()!);
       _readStatus = Map<String, bool>.from(readStatusDoc.data()!);
     } else {
-      final String response =
-          await rootBundle.loadString('assets/readings.json');
-      final data = await json.decode(response);
-      _readings = Map.from(data);
-      _readStatus = Map.fromIterable(
-        _readings.keys,
-        key: (k) => k,
-        value: (_) => false,
-      );
+      // 초기 데이터가 없을 경우 Firestore에 빈 데이터를 저장합니다.
+      _readings = {};
+      _readStatus = {};
       await _saveToFirestore();
     }
     notifyListeners();
