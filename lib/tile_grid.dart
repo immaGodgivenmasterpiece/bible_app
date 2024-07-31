@@ -54,10 +54,11 @@ class _TileGridState extends State<TileGrid> {
             },
             child: Container(
               margin: EdgeInsets.all(4),
-              color: isRead ? Colors.green : Colors.red,
+              color: isRead ? Colors.green : Color.fromARGB(255, 219, 130, 14),
               child: Center(
                 child: Text(
                   '${content.split('\n').first}',
+                  style: TextStyle(fontWeight: FontWeight.bold),
                   textAlign: TextAlign.center,
                   overflow: TextOverflow.ellipsis,
                   maxLines: 2,
