@@ -19,10 +19,7 @@ class ReadingPage extends StatelessWidget {
           Expanded(
             child: SingleChildScrollView(
               padding: EdgeInsets.all(16),
-              child: Text(
-                content,
-                style: TextStyle(fontSize: 18),
-              ),
+              child: _buildStyledContent(content),
             ),
           ),
           if (isRead)
@@ -43,6 +40,46 @@ class ReadingPage extends StatelessWidget {
             ),
           SizedBox(height: 8),
         ],
+      ),
+    );
+  }
+
+  Widget _buildStyledContent(String content) {
+    final lines = content.split('\n');
+    List<TextSpan> textSpans = [];
+    bool nextLineBlueBold = false;
+
+    for (int i = 0; i < lines.length; i++) {
+      final line = lines[i];
+      if (nextLineBlueBold) {
+        textSpans.add(TextSpan(
+          text: line + '\n',
+          style: TextStyle(
+              color: Color.fromARGB(245, 0, 79, 216),
+              fontWeight: FontWeight.bold),
+        ));
+        nextLineBlueBold = false;
+      } else if (line.contains('(다같이)')) {
+        textSpans.add(TextSpan(
+          text: line + '\n',
+        ));
+        nextLineBlueBold = true;
+      } else if (i % 2 == 1) {
+        textSpans.add(TextSpan(
+          text: line + '\n',
+        ));
+      } else {
+        textSpans.add(TextSpan(
+          text: line + '\n',
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ));
+      }
+    }
+
+    return RichText(
+      text: TextSpan(
+        style: TextStyle(fontSize: 18, color: Colors.black),
+        children: textSpans,
       ),
     );
   }
