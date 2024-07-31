@@ -1,7 +1,8 @@
-import 'package:flutter/foundation.dart';
-import 'package:flutter/services.dart' show rootBundle;
 import 'dart:convert';
-import 'package:shared_preferences/shared_preferences.dart';
+
+import 'package:flutter/foundation.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/services.dart';
 
 class ReadingState extends ChangeNotifier {
   Map<String, String> _readings = {};
@@ -14,13 +15,15 @@ class ReadingState extends ChangeNotifier {
   }
 
   Future<void> _loadReadings() async {
-    final prefs = await SharedPreferences.getInstance();
-    final String? storedReadings = prefs.getString('readings');
-    final String? storedReadStatus = prefs.getString('readStatus');
+    final firestore = FirebaseFirestore.instance;
+    final readingsDoc =
+        await firestore.collection('readings').doc('data').get();
+    final readStatusDoc =
+        await firestore.collection('readStatus').doc('data').get();
 
-    if (storedReadings != null && storedReadStatus != null) {
-      _readings = Map<String, String>.from(json.decode(storedReadings));
-      _readStatus = Map<String, bool>.from(json.decode(storedReadStatus));
+    if (readingsDoc.exists && readStatusDoc.exists) {
+      _readings = Map<String, String>.from(readingsDoc.data()!);
+      _readStatus = Map<String, bool>.from(readStatusDoc.data()!);
     } else {
       final String response =
           await rootBundle.loadString('assets/readings.json');
@@ -31,26 +34,26 @@ class ReadingState extends ChangeNotifier {
         key: (k) => k,
         value: (_) => false,
       );
-      await _saveToLocalStorage();
+      await _saveToFirestore();
     }
     notifyListeners();
   }
 
-  Future<void> _saveToLocalStorage() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString('readings', json.encode(_readings));
-    await prefs.setString('readStatus', json.encode(_readStatus));
+  Future<void> _saveToFirestore() async {
+    final firestore = FirebaseFirestore.instance;
+    await firestore.collection('readings').doc('data').set(_readings);
+    await firestore.collection('readStatus').doc('data').set(_readStatus);
   }
 
   void markAsRead(String tileId) {
     _readStatus[tileId] = true;
-    _saveToLocalStorage();
+    _saveToFirestore();
     notifyListeners();
   }
 
   void markAsUnread(String tileId) {
     _readStatus[tileId] = false;
-    _saveToLocalStorage();
+    _saveToFirestore();
     notifyListeners();
   }
 
