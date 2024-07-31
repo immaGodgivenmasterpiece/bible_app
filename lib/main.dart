@@ -9,12 +9,12 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
     options: const FirebaseOptions(
-        apiKey: "AIzaSyCJqEhkF1ivRLS7W9nHGOEtfkOwW6c9d9E",
-        authDomain: "bible-app-5f7f7.firebaseapp.com",
-        projectId: "bible-app-5f7f7",
-        storageBucket: "bible-app-5f7f7.appspot.com",
-        messagingSenderId: "235791652091",
-        appId: "1:235791652091:web:9c7bf50ae30cb74c064c5e"),
+        apiKey: "AIzaSyBaBn8ntgR45Tky8lgOihjiN5-ULdsqtB4",
+        authDomain: "bible-app-406c3.firebaseapp.com",
+        projectId: "bible-app-406c3",
+        storageBucket: "bible-app-406c3.appspot.com",
+        messagingSenderId: "360237294742",
+        appId: "1:360237294742:web:ef61acc564936d99314eb7"),
   );
   runApp(MyApp());
 }
