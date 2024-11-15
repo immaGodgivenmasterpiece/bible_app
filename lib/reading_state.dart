@@ -40,7 +40,7 @@ class ReadingState extends ChangeNotifier {
   void markAsRead(String tileId) {
     _readStatus[tileId] = true;
     notifyListeners();
-    _saveToFirestore(); // 비동기로 Firestore에 저장
+    _saveToFirestore(); // 비동기로 Firestore에 저장.
   }
 
   void markAsUnread(String tileId) {
