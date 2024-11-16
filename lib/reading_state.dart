@@ -19,12 +19,19 @@ class ReadingState extends ChangeNotifier {
   }
 
   Future<void> _loadReadings() async {
-    // JSON 파일에서 직접 읽기
-    final String jsonString = await rootBundle.loadString('assets/readings.json');
+  try {
+    // JSON 파일 읽기
+    final ByteData data = await rootBundle.load('assets/readings.json');
+    final List<int> bytes = data.buffer.asUint8List();
+    final String jsonString = utf8.decode(bytes);
     final Map<String, dynamic> jsonData = json.decode(jsonString);
     _readings = Map<String, String>.from(jsonData);
     notifyListeners();
+  } catch (e) {
+    print('Error loading readings: $e');
+    _readings = {};
   }
+}
 
   Future<void> _loadReadStatus() async {
     final firestore = FirebaseFirestore.instance;
