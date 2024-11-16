@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/services.dart';
 
 class ReadingState extends ChangeNotifier {
   Map<String, String> _readings = {};
@@ -8,46 +9,89 @@ class ReadingState extends ChangeNotifier {
   Map<String, String> get readings => _readings;
   Map<String, bool> get readStatus => _readStatus;
 
+  // ReadingState() {
+  //   _loadReadings();
+  // }
+
   ReadingState() {
     _loadReadings();
+    _loadReadStatus();
   }
 
   Future<void> _loadReadings() async {
-    final firestore = FirebaseFirestore.instance;
-    final readingsDoc =
-        await firestore.collection('readings').doc('data').get();
-    final readStatusDoc =
-        await firestore.collection('readStatus').doc('data').get();
+    // JSON 파일에서 직접 읽기
+    final String jsonString = await rootBundle.loadString('assets/readings.json');
+    final Map<String, dynamic> jsonData = json.decode(jsonString);
+    _readings = Map<String, String>.from(jsonData);
+    notifyListeners();
+  }
 
-    if (readingsDoc.exists && readStatusDoc.exists) {
-      _readings = Map<String, String>.from(readingsDoc.data()!);
+  Future<void> _loadReadStatus() async {
+    final firestore = FirebaseFirestore.instance;
+    final readStatusDoc = await firestore.collection('readStatus').doc('data').get();
+
+    if (readStatusDoc.exists) {
       _readStatus = Map<String, bool>.from(readStatusDoc.data()!);
     } else {
-      // 초기 데이터가 없을 경우 Firestore에 빈 데이터를 저장합니다.
-      _readings = {};
       _readStatus = {};
-      await _saveToFirestore();
+      await _saveReadStatusToFirestore();
     }
     notifyListeners();
   }
 
-  Future<void> _saveToFirestore() async {
+  Future<void> _saveReadStatusToFirestore() async {
     final firestore = FirebaseFirestore.instance;
-    await firestore.collection('readings').doc('data').set(_readings);
     await firestore.collection('readStatus').doc('data').set(_readStatus);
   }
 
   void markAsRead(String tileId) {
     _readStatus[tileId] = true;
+    _saveReadStatusToFirestore();
     notifyListeners();
-    _saveToFirestore(); // 비동기로 Firestore에 저장.
   }
 
   void markAsUnread(String tileId) {
     _readStatus[tileId] = false;
+    _saveReadStatusToFirestore();
     notifyListeners();
-    _saveToFirestore(); // 비동기로 Firestore에 저장
   }
+
+  // Future<void> _loadReadings() async {
+  //   final firestore = FirebaseFirestore.instance;
+  //   final readingsDoc =
+  //       await firestore.collection('readings').doc('data').get();
+  //   final readStatusDoc =
+  //       await firestore.collection('readStatus').doc('data').get();
+
+  //   if (readingsDoc.exists && readStatusDoc.exists) {
+  //     _readings = Map<String, String>.from(readingsDoc.data()!);
+  //     _readStatus = Map<String, bool>.from(readStatusDoc.data()!);
+  //   } else {
+  //     // 초기 데이터가 없을 경우 Firestore에 빈 데이터를 저장합니다.
+  //     _readings = {};
+  //     _readStatus = {};
+  //     await _saveToFirestore();
+  //   }
+  //   notifyListeners();
+  // }
+
+  // Future<void> _saveToFirestore() async {
+  //   final firestore = FirebaseFirestore.instance;
+  //   await firestore.collection('readings').doc('data').set(_readings);
+  //   await firestore.collection('readStatus').doc('data').set(_readStatus);
+  // }
+
+  // void markAsRead(String tileId) {
+  //   _readStatus[tileId] = true;
+  //   notifyListeners();
+  //   _saveToFirestore(); // 비동기로 Firestore에 저장.
+  // }
+
+  // void markAsUnread(String tileId) {
+  //   _readStatus[tileId] = false;
+  //   notifyListeners();
+  //   _saveToFirestore(); // 비동기로 Firestore에 저장
+  // }
 
   int getLastReadTileIndex() {
     List<MapEntry<String, bool>> sortedEntries = _readStatus.entries.toList()
